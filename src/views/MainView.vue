@@ -17,34 +17,32 @@
             <v-card>
                 <v-card-title>
                     创建新团体
-                    <v-btn style="float:right" variant="tonal" @click="dialog = true" color="blue">
+                    <v-btn style="float:right" variant="tonal" @click="handleCreate" color="blue">
                         Comfirm
                     </v-btn>
                 </v-card-title>
 
                 <v-card-text>
 
-                    <v-list>
-                        <TransitionGroup name="list">
+                    <TransitionGroup name="list" tag="v-list">
 
-                            <v-list-item v-for="(item, i) in items" :key="i" :value="item" color="blue">
+                        <v-list-item v-for="(item, i) in users_data" :key="i" :value="item" color="blue">
 
-                                <template v-slot:append>
+                            <template v-slot:append>
 
-                                    <v-btn v-if="item.ifJoin" class="sort-button" @click="handleSelect(i)" icon="mdi-checkbox-intermediate"
-                                        color="green" ></v-btn>
-                                    <v-btn v-else class="sort-button" @click="handleSelect(i)" icon="mdi-checkbox-blank-outline"
-                                        color="grey"></v-btn>
-                                    <v-btn class="sort-button" @click="handleUp(i)" icon="mdi-arrow-up-bold"
-                                        color="blue"></v-btn>
-                                    <v-btn class="sort-button" @click="handleDown(i)" icon="mdi-arrow-down-bold"
-                                        color="blue"></v-btn>
+                                <v-btn v-if="item.ifJoin" class="sort-button" @click="handleSelect(i)"
+                                    icon="mdi-checkbox-intermediate" color="green"></v-btn>
+                                <v-btn v-else class="sort-button" @click="handleSelect(i)" icon="mdi-checkbox-blank-outline"
+                                    color="grey"></v-btn>
+                                <v-btn class="sort-button" @click="handleUp(i)" icon="mdi-arrow-up-bold"
+                                    color="blue"></v-btn>
+                                <v-btn class="sort-button" @click="handleDown(i)" icon="mdi-arrow-down-bold"
+                                    color="blue"></v-btn>
 
-                                </template>
-                                <v-list-item-title v-text="item.text"></v-list-item-title>
-                            </v-list-item>
-                        </TransitionGroup>
-                    </v-list>
+                            </template>
+                            <v-list-item-title v-text="item.text"></v-list-item-title>
+                        </v-list-item>
+                    </TransitionGroup>
                 </v-card-text>
 
             </v-card>
@@ -77,6 +75,8 @@ import api from '@/api/users';
 import { ref, onMounted } from 'vue'
 import users_ from '../stores/users'
 import groups_, { GroupInfo } from '../stores/groups'
+import { useToast } from 'vue-toastification';
+const toast = useToast();
 const users = users_()
 const groups = groups_()
 
@@ -90,36 +90,59 @@ interface Group {
     group_data: GroupData[];
     group_uuid: string;
 }
+interface UserData {
+    text: string;
+    uuid: string;
+    ifJoin: boolean;
+}
 const groups_data = ref<Group[]>([]);
 
-var items = ref([
-    { text: '段佳宁', ifJoin: true },
-    { text: '唐国耀', ifJoin: false },
-    { text: '侯易杭', ifJoin: false },
-])
+const users_data = ref<UserData[]>([])
 
 const handleSelect = (i: number) => {
-    items.value[i].ifJoin = !items.value[i].ifJoin
+    users_data.value[i].ifJoin = !users_data.value[i].ifJoin
 }
 const handleUp = (i: number) => {
     if (i == 0) return
-    let p = items.value
+    let p = users_data.value
     let temp = p[i]
     p[i] = p[i - 1]
     p[i - 1] = temp
-    items.value = p
+    users_data.value = p
 }
 const handleDown = (i: number) => {
-    if (i == items.value.length - 1) return
-    let temp = items.value[i]
-    items.value[i] = items.value[i + 1]
-    items.value[i + 1] = temp
+    if (i == users_data.value.length - 1) return
+    let temp = users_data.value[i]
+    users_data.value[i] = users_data.value[i + 1]
+    users_data.value[i + 1] = temp
+}
+const handleCreate = async () => {
+    dialog.value = false
+    console.log(users_data.value);
+
+    api.add({
+        uuids: users_data.value.filter(value => value.ifJoin).map((item) => item.uuid)
+    }, id)
+        .then(function (response) {
+            toast.success('创建成功')
+            init()
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
 }
 const id = users.getUUID;
 const init = async () => {
     await api.getUsers({}, id)
         .then(function (response) {
             users.setOthers(response.data)
+            users_data.value = response.data.filter(value => value.uuid != users.getUUID).map((item) => {
+                return {
+                    text: item.account,
+                    uuid: item.uuid,
+                    ifJoin: false
+                }
+            })
         })
         .catch(function (error) {
             // 处理错误情况
@@ -195,6 +218,8 @@ init()
 
 .sort-button {
     margin-left: 10px;
+    width: 30px;
+    height: 30px;
 }
 
 .list-move,
