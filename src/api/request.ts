@@ -6,6 +6,7 @@ import {
     CreateRequestClient,
     APIurl,
 } from './type';
+import { VMessages } from 'vuetify/lib/components/index.mjs';
 
 export function attachAPI<T extends APISchema>(
     client: AxiosInstance,
@@ -34,7 +35,6 @@ export function attachAPI<T extends APISchema>(
     }
     return hostApi;
 }
-import { ElMessage } from "element-plus";
 export const service = axios.create({
     baseURL: "https://tro.435qb.top:13456",//"https://tro.435qb.top:13456", //"http://118.202.10.57:13456" "http://localhost:8085"
     timeout: 5000,
@@ -55,11 +55,11 @@ service.interceptors.response.use((response) => {
         response.data = meta.result
         return response
     } else {
-        ElMessage.error(meta.message)
+        VMessages.error(meta.message)
         return Promise.reject(new Error(meta.message))
     }
 }, error => {
-    error.response && ElMessage.error(error.response.data)
+    error.response && VMessages.error(error.response.data)
     return Promise.reject(new Error((error.response.data)))
 })
 
