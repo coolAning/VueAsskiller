@@ -6,7 +6,8 @@ import {
     CreateRequestClient,
     APIurl,
 } from './type';
-import { VMessages } from 'vuetify/lib/components/index.mjs';
+import { useToast } from 'vue-toastification';
+const toast = useToast();
 
 export function attachAPI<T extends APISchema>(
     client: AxiosInstance,
@@ -55,11 +56,11 @@ service.interceptors.response.use((response) => {
         response.data = meta.result
         return response
     } else {
-        VMessages.error(meta.message)
+        toast.error(meta.message)
         return Promise.reject(new Error(meta.message))
     }
 }, error => {
-    error.response && VMessages.error(error.response.data)
+    error.response && toast.error(error.response.data)
     return Promise.reject(new Error((error.response.data)))
 })
 

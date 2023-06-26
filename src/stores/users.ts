@@ -25,7 +25,7 @@ export const users = defineStore('users', {
         return state.self.account
       }
       let a = state.others.find((v) => v.uuid == uuid_)
-      return (a ?? {}).account
+      return a!.account
     }
 
   },

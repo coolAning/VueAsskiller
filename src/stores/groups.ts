@@ -14,11 +14,11 @@ export const groups = defineStore('groups', {
   getters: {
     getGroupUsers_uuid: (state) => (uuid_: string) => {
       let data = state.groups.find((v) => v.uuid == uuid_);
-      return (data ?? {}).users_uuid
+      return data!.users_uuid
     },
     getTxByUuid: (state) => (uuid_: string) => {
       let data = state.groups.find((v) => v.uuid == uuid_);
-      return (data ?? {}).n_tx
+      return data!.n_tx
     }, 
 
   },
