@@ -9,17 +9,53 @@
         </div>
         <div class="form-container">
             <v-sheet max-width="300" class="mx-auto">
-                <v-form validate-on="submit lazy">
-                    <v-text-field label="账号"></v-text-field>
-                    <v-text-field label="密码"></v-text-field>
+                <v-form validate-on="submit lazy" @submit.prevent="handleLogin">
+                    <v-text-field v-model="account" :rules="rules" label="账号" ></v-text-field>
+                    <v-text-field v-model="password" :rules="rules" label="密码" ></v-text-field>
 
-                    <v-btn type="submit" block class="mt-2" text="登录"></v-btn>
+                    <v-btn type="submit" block text="登录"></v-btn>
                 </v-form>
             </v-sheet>
         </div>
 
     </div>
 </template>
+<script lang="ts" setup>
+import { reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+// import users_ from '@/stores/users'
+import router from '@/router'
+import userapi from '../api/users'
+const account = ref('')
+const password = ref('')
+
+// const users=users_()
+const rules = ref([
+    (value : string) => {
+        return true
+    }
+])
+
+const handleLogin = async () => {
+    console.log(account);
+    
+    // userapi.login({
+    //     account:form.account,
+    //     password:form.password
+    // })
+    // .then(function (response) {
+    //     ElMessage("登录成功")
+    //     // users.setSelf(response.data);
+    //     // localStorage.setItem('uuid', response.data.uuid)
+    //     // localStorage.setItem('account', response.data.account)
+    //     // router.push('/main')
+    // })
+    // .catch(function (error) {
+    //     console.log(error);
+    // })
+}
+
+</script>
 <style scoped>
 .main-container {
     display: flex;
@@ -55,6 +91,3 @@
     margin-bottom: 50px;
 }
 </style>
-<script lang="ts" setup>
-
-</script>

@@ -103,7 +103,7 @@
     margin-bottom: 20px;
 }
 </style>
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 var dialog = ref(false);
 var items1 = [
