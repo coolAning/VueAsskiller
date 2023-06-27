@@ -17,7 +17,6 @@
             <v-card>
                 <v-card-title>
                     创建新团体
-                    <v-btn style="float:right" variant="tonal" @click="change" color="blue">该</v-btn>
                     <v-btn style="float:right" variant="tonal" @click="handleCreate" color="blue">
                         Comfirm
                     </v-btn>
@@ -57,7 +56,8 @@
                         <v-btn v-if="!item.confirm" icon="mdi-message-badge-outline" color="red" @click="handleConfirm(i)"></v-btn>
                         <v-btn v-if="!item.confirm" icon="mdi mdi-close" color="red" @click="handleCancel(i)"></v-btn>
                         <v-btn v-else-if="item.txuuid&&item.next==users.getUUID" icon="mdi mdi-help" color="red" @click="handleCheck(i)"></v-btn>
-                        <v-btn v-else icon="mdi mdi-check" color="green"></v-btn>
+                        <v-btn v-else-if="!item.txuuid&&item.next==users.getUUID" icon="mdi mdi-check" color="blue" @click="handleAdd(i)"></v-btn>
+                        <v-btn disabled v-else icon="mdi mdi-check" color="green"></v-btn>
                     </template>
                     <v-list density="compact">
                         <v-list-subheader>成员列表</v-list-subheader>
@@ -180,6 +180,18 @@ const handleCancel = async (i: number) => {
             console.log(error);
         })
 }
+const handleAdd = async (i: number) => {
+    await api.addTx({
+        guuid: groups_data.value[i].group_uuid
+    }, id)
+        .then(function (response) {
+            toast.success('添加成功')
+            init()
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+}
 const id = users.getUUID;
 const init = async () => {
     await api.getUsers({}, id)
@@ -208,7 +220,7 @@ const init = async () => {
                     group_data: item.data.map((item_) => {
                         return {
                             text: users.searchAccount(item_.useruuid)!,
-                            icon: item_.num == 1 ? 'mdi-arrow-right-box' : ''
+                            icon: item_.useruuid == item.next ? 'mdi-arrow-right-box' : ''
                         }
                     }),
                     group_uuid: item.guuid,
