@@ -17,16 +17,17 @@
             <v-card>
                 <v-card-title>
                     创建新团体
+                    <v-btn style="float:right" variant="tonal" @click="change" color="blue">该</v-btn>
                     <v-btn style="float:right" variant="tonal" @click="handleCreate" color="blue">
                         Comfirm
                     </v-btn>
                 </v-card-title>
 
                 <v-card-text>
+                    <v-list>
+                    <TransitionGroup name="list">
 
-                    <TransitionGroup name="list" tag="v-list">
-
-                        <v-list-item v-for="(item, i) in users_data" :key="i" :value="item" color="blue">
+                        <v-list-item v-for="(item, i) in users_data" :key="i" color="blue">
 
                             <template v-slot:append>
 
@@ -43,6 +44,7 @@
                             <v-list-item-title v-text="item.text"></v-list-item-title>
                         </v-list-item>
                     </TransitionGroup>
+                </v-list>
                 </v-card-text>
 
             </v-card>
@@ -52,7 +54,10 @@
             <v-container fluid class="content-container">
                 <v-card v-for="(item, i) in groups_data" width="90%" title="三头野猪" subtitle="没啥用的子标题">
                     <template v-slot:append>
-                        <v-btn icon="mdi-message-badge-outline" color="red"></v-btn>
+                        <v-btn v-if="!item.confirm" icon="mdi-message-badge-outline" color="red" @click="handleConfirm(i)"></v-btn>
+                        <v-btn v-if="!item.confirm" icon="mdi mdi-close" color="red" @click="handleCancel(i)"></v-btn>
+                        <v-btn v-else-if="item.txuuid&&item.next==users.getUUID" icon="mdi mdi-help" color="red" @click="handleCheck(i)"></v-btn>
+                        <v-btn v-else icon="mdi mdi-check" color="green"></v-btn>
                     </template>
                     <v-list density="compact">
                         <v-list-subheader>成员列表</v-list-subheader>
@@ -89,6 +94,9 @@ interface GroupData {
 interface Group {
     group_data: GroupData[];
     group_uuid: string;
+    txuuid?: string;
+    next: string;
+    confirm: boolean;
 }
 interface UserData {
     text: string;
@@ -98,7 +106,9 @@ interface UserData {
 const groups_data = ref<Group[]>([]);
 
 const users_data = ref<UserData[]>([])
-
+const change = ()=>{
+    handleUp(1)
+}
 const handleSelect = (i: number) => {
     users_data.value[i].ifJoin = !users_data.value[i].ifJoin
 }
@@ -120,11 +130,50 @@ const handleCreate = async () => {
     dialog.value = false
     console.log(users_data.value);
 
-    api.add({
+    await api.add({
         uuids: users_data.value.filter(value => value.ifJoin).map((item) => item.uuid)
     }, id)
         .then(function (response) {
             toast.success('创建成功')
+            init()
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+}
+const handleConfirm = async (i: number) => {
+    await api.confirm({
+        txuuid: groups_data.value[i].txuuid!
+    }, id)
+        .then(function (response) {
+            toast.success('确认成功')
+            init()
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+}
+const handleCheck = async (i: number) => {
+    await api.getConfirmState({
+        txuuid: groups_data.value[i].txuuid!
+    }, id)
+        .then(function (response) {
+            console.log(response.data);
+            toast.success(response.data.map((item)=>{
+                return users.searchAccount(item)
+            }).join(' '))
+            init()
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+}
+const handleCancel = async (i: number) => {
+    await api.cancel({
+        txuuid: groups_data.value[i].txuuid!
+    }, id)
+        .then(function (response) {
+            toast.success('取消成功')
             init()
         })
         .catch(function (error) {
@@ -162,7 +211,10 @@ const init = async () => {
                             icon: item_.num == 1 ? 'mdi-arrow-right-box' : ''
                         }
                     }),
-                    group_uuid: item.guuid
+                    group_uuid: item.guuid,
+                    txuuid: item.txuuid,
+                    next: item.next,
+                    confirm: true,
                 }
             })
             let groups_: GroupInfo[] = []
@@ -189,7 +241,13 @@ const init = async () => {
     await api.getConfirm({}, id)
         .then(function (response) {
             console.log(response.data);
-
+            response.data.forEach(element => {
+                let index = groups_data.value.findIndex((item) => item.group_uuid == element.guuid)
+                if (index != -1) {
+                    groups_data.value[index].confirm = false
+                }
+            });
+            
 
         })
         .catch(function (error) {
@@ -237,7 +295,7 @@ init()
 
 /* ensure leaving items are taken out of layout flow so that moving
    animations can be calculated correctly. */
-.list-leave-active {
+/* .list-leave-active {
     position: absolute;
-}
+} */
 </style>

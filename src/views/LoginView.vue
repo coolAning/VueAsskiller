@@ -53,6 +53,7 @@ const handleLogin = async () => {
             loadding.value = false
             toast.success('登录成功')
             users.setSelf(response.data);
+            router.push("main")
             
         })
         .catch(function (error) {
