@@ -11,7 +11,11 @@
             <v-sheet max-width="300" class="mx-auto">
                 <v-form validate-on="submit lazy" @submit.prevent="handleLogin">
                     <v-text-field v-model="form.account" :rules="rules" label="账号"></v-text-field>
-                    <v-text-field v-model="form.password" :rules="rules" label="密码"></v-text-field>
+                    <v-text-field
+                    :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                    :type="visible ? 'text' : 'password'"
+                    @click:append-inner="visible = !visible"
+                    v-model="form.password" :rules="rules" label="密码"></v-text-field>
 
                     <v-btn :loading="loadding" type="submit" block text="登录"></v-btn>
                 </v-form>
@@ -31,6 +35,7 @@ const form = reactive({
     account: '',
     password: ''
 })
+const visible = ref(false)
 const loadding = ref(false) 
 const users = users_()
 

@@ -24,26 +24,26 @@
 
                 <v-card-text>
                     <v-list>
-                    <TransitionGroup name="list">
+                        <TransitionGroup name="list">
 
-                        <v-list-item v-for="(item, i) in users_data" :key="i" color="blue">
+                            <v-list-item v-for="(item, i) in users_data" :key="item.text" color="blue">
 
-                            <template v-slot:append>
+                                <template v-slot:append>
 
-                                <v-btn v-if="item.ifJoin" class="sort-button" @click="handleSelect(i)"
-                                    icon="mdi-checkbox-intermediate" color="green"></v-btn>
-                                <v-btn v-else class="sort-button" @click="handleSelect(i)" icon="mdi-checkbox-blank-outline"
-                                    color="grey"></v-btn>
-                                <v-btn class="sort-button" @click="handleUp(i)" icon="mdi-arrow-up-bold"
-                                    color="blue"></v-btn>
-                                <v-btn class="sort-button" @click="handleDown(i)" icon="mdi-arrow-down-bold"
-                                    color="blue"></v-btn>
+                                    <v-btn v-if="item.ifJoin" class="sort-button" @click="handleSelect(i)"
+                                        icon="mdi-checkbox-intermediate" color="green"></v-btn>
+                                    <v-btn v-else class="sort-button" @click="handleSelect(i)"
+                                        icon="mdi-checkbox-blank-outline" color="grey"></v-btn>
+                                    <v-btn class="sort-button" @click="handleUp(i)" icon="mdi-arrow-up-bold"
+                                        color="blue"></v-btn>
+                                    <v-btn class="sort-button" @click="handleDown(i)" icon="mdi-arrow-down-bold"
+                                        color="blue"></v-btn>
 
-                            </template>
-                            <v-list-item-title v-text="item.text"></v-list-item-title>
-                        </v-list-item>
-                    </TransitionGroup>
-                </v-list>
+                                </template>
+                                <v-list-item-title v-text="item.text"></v-list-item-title>
+                            </v-list-item>
+                        </TransitionGroup>
+                    </v-list>
                 </v-card-text>
 
             </v-card>
@@ -53,10 +53,13 @@
             <v-container fluid class="content-container">
                 <v-card v-for="(item, i) in groups_data" width="90%" title="三头野猪" subtitle="没啥用的子标题">
                     <template v-slot:append>
-                        <v-btn v-if="!item.confirm" icon="mdi-message-badge-outline" color="red" @click="handleConfirm(i)"></v-btn>
+                        <v-btn v-if="!item.confirm" icon="mdi-message-badge-outline" color="red"
+                            @click="handleConfirm(i)"></v-btn>
                         <v-btn v-if="!item.confirm" icon="mdi mdi-close" color="red" @click="handleCancel(i)"></v-btn>
-                        <v-btn v-else-if="item.txuuid&&item.next==users.getUUID" icon="mdi mdi-help" color="red" @click="handleCheck(i)"></v-btn>
-                        <v-btn v-else-if="!item.txuuid&&item.next==users.getUUID" icon="mdi mdi-check" color="blue" @click="handleAdd(i)"></v-btn>
+                        <v-btn v-else-if="item.txuuid && item.next == users.getUUID" icon="mdi mdi-help" color="red"
+                            @click="handleCheck(i)"></v-btn>
+                        <v-btn v-else-if="!item.txuuid && item.next == users.getUUID" icon="mdi mdi-check" color="blue"
+                            @click="handleAdd(i)"></v-btn>
                         <v-btn disabled v-else icon="mdi mdi-check" color="green"></v-btn>
                     </template>
                     <v-list density="compact">
@@ -106,7 +109,7 @@ interface UserData {
 const groups_data = ref<Group[]>([]);
 
 const users_data = ref<UserData[]>([])
-const change = ()=>{
+const change = () => {
     handleUp(1)
 }
 const handleSelect = (i: number) => {
@@ -159,7 +162,7 @@ const handleCheck = async (i: number) => {
     }, id)
         .then(function (response) {
             console.log(response.data);
-            toast.success(response.data.map((item)=>{
+            toast.success(response.data.map((item) => {
                 return users.searchAccount(item)
             }).join(' '))
             init()
@@ -259,7 +262,7 @@ const init = async () => {
                     groups_data.value[index].confirm = false
                 }
             });
-            
+
 
         })
         .catch(function (error) {
@@ -309,5 +312,4 @@ init()
    animations can be calculated correctly. */
 /* .list-leave-active {
     position: absolute;
-} */
-</style>
+} */</style>
