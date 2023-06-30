@@ -42,7 +42,9 @@ export const service = axios.create({
 })
 
 service.interceptors.request.use(config => {
-    config.headers.Authorization = localStorage.getItem('token')
+    if(localStorage.getItem('token') !== null){
+        config.headers.Authorization = localStorage.getItem('token')
+    }
     return config
 }, error => {
     return Promise.reject(new Error(error))
@@ -59,9 +61,13 @@ service.interceptors.response.use((response) => {
         toast.error(meta.message)
         return Promise.reject(new Error(meta.message))
     }
-}, error => {
-    error.response && toast.error(error.response.data)
-    return Promise.reject(new Error((error.response.data)))
+}, error => {   
+    if(error.response !== undefined){
+        toast.error(error.response.data.message)
+        return Promise.reject(new Error(error.response.data.message))
+    }
+    toast.error(error.message)
+    return Promise.reject(new Error(error.message))
 })
 
 export default service

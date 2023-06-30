@@ -56,8 +56,12 @@ const handleLogin = async () => {
     })
         .then(async function (response) {
             loadding.value = false
+            localStorage.setItem('token', response.data.token)
             toast.success('登录成功')
-            users.setSelf(response.data);
+            users.setSelf({
+                account : response.data.account,
+                uuid : response.data.uuid
+            });
             router.push("main")
             
         })

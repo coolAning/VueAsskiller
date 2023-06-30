@@ -10,6 +10,7 @@ interface TestAPISchema extends APISchema {
         response: {
             "uuid": string
             "account": string
+            "token" : string
         },
     },
     getUsers: {
